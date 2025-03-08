@@ -29,12 +29,12 @@ jobs:
     - name: Build the project
       run: npm run build
 
-    # - name: Download artifact
-    #   uses: actions/download-artifact@v4
-    #   with:
-    #     path: ./dist
-    #     pattern: production-files-*
-    #     merge-multiple: true
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        path: ./dist
+        pattern: production-files-*
+        merge-multiple: true
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
