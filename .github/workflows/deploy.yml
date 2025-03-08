@@ -20,12 +20,12 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
 
-    # - name: Install dependencies
-    #   run: npm install
-    #   working-directory: ./app
-
     - name: Install dependencies
-      uses: bahmutov/npm-install@v1
+      run: npm install
+      working-directory: ./app
+
+    # - name: Install dependencies
+    #   uses: bahmutov/npm-install@v1
 
     - name: Build the project
       run: npm run build
