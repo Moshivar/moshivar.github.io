@@ -29,20 +29,14 @@ jobs:
     - name: Build the project
       run: npm run build
 
-  deploy:
-    name: Deploy
-    needs: build
-    runs-on: ubunutu-latest
+    - name: Download artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: production-files
+        path: ./dist
 
-    steps:
-        - name: Download artifact
-          uses: actions/download-artifact@v3
-          with:
-            name: production-files
-            path: ./dist
-
-        - name: Deploy to GitHub Pages
-          uses: peaceiris/actions-gh-pages@v3
-          with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            publish_dir: ./dist
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./dist
