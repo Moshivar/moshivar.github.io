@@ -22,14 +22,12 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-      working-directory: ./app
 
-    # - name: Install dependencies
-    #   uses: bahmutov/npm-install@v1
+    - name: Install dependencies
+      uses: bahmutov/npm-install@v1
 
-    - name: Build the project
-      run: npm run build
-      working-directory: ./app
+    # - name: Build the project
+    #   run: npm run build
 
   deploy:
     name: Deploy
@@ -41,10 +39,10 @@ jobs:
           uses: actions/download-artifact@v3
           with:
             name: production-files
-            path: ./app/dist
+            path: ./dist
 
         - name: Deploy to GitHub Pages
           uses: peaceiris/actions-gh-pages@v3
           with:
             github_token: ${{ secrets.GITHUB_TOKEN }}
-            publish_dir: ./app/dist
+            publish_dir: ./dist
