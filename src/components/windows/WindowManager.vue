@@ -15,12 +15,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, markRaw, defineComponent } from "vue";
+import { ref, provide, markRaw, defineComponent } from "vue";
 import Window from "@/components/windows/Window.vue";
 import Shop from "@/views/Shop.vue";
 import Home from "@/views/Home.vue";
 import Gordath from "@/views/Gordath.vue";
 import BottomNavBar from "@/components/ui/BottomNavBar.vue";
+
+const maxZIndex = ref(10);
+provide("maxZIndex", maxZIndex); // ✅ Make `maxZIndex` available to all windows
 
 // Define the structure for a windows
 interface WindowData {

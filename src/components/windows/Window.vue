@@ -1,5 +1,5 @@
 <template>
-  <div class="window" :style="{ width: width + 'px', height: height + 'px', top: y + 'px', left: x + 'px' }" @mousedown="bringToFront">
+  <div class="window" :style="{ width: width + 'px', height: height + 'px', top: y + 'px', left: x + 'px', zIndex: zIndex }" @mousedown="bringToFront">
     <div class="title-bar" @mousedown="startDrag">
       <span class="title">{{ title }}</span>
       <button class="close-btn" @click="$emit('close', id)">✖</button>
@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, inject } from "vue";
 
 const props = defineProps({
   id: { type: Number, required: true },
@@ -26,7 +26,8 @@ const x = ref(100);
 const y = ref(100);
 const width = ref(400);
 const height = ref(300);
-let maxZIndex = ref(10);
+const maxZIndex = inject("maxZIndex");
+const zIndex = ref(1);
 
 const startDrag = (event) => {
   const startX = event.clientX - x.value;
@@ -67,12 +68,9 @@ const startResize = (event) => {
   document.addEventListener("mouseup", stopResize);
 };
 
-const bringToFront = (event) => {
-  const windowElement = event.target.closest(".windows"); // Bring to front
-  if (!windowElement) return;
-
-  maxZIndex.value += 1;
-  windowElement.style.zIndex = maxZIndex.value;
+const bringToFront = () => {
+  maxZIndex.value += 1; // Increase max z-index
+  zIndex.value = maxZIndex.value; // Assign highest z-index to this window
 };
 
 </script>
@@ -81,9 +79,9 @@ const bringToFront = (event) => {
 .window {
   position: absolute;
   background: #222;
-  border: 2px solid #333;
-  border-radius: 2px;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+  border: 2px solid #575757;
+  border-radius: 12px;
+  box-shadow: 3px 3px 5px rgba(100, 100, 100, 0.7);
   overflow: hidden;
   font-family: sans-serif;
   color: white;
@@ -107,13 +105,18 @@ const bringToFront = (event) => {
 }
 
 .close-btn {
-  background: #ff4444;
-  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #d61313;
+  height: 25px;
+  width: 25px;
+  border: 8px white;
   color: white;
   font-weight: bold;
   padding: 2px 8px;
   cursor: pointer;
-  border-radius: 2px;
+  border-radius: 6px;
 }
 
 .close-btn:hover {
@@ -131,11 +134,11 @@ const bringToFront = (event) => {
 
 .resize-handle {
   position: absolute;
-  bottom: 0;
-  right: 0;
+  bottom: -5px; /* ✅ Extends outside the window */
+  right: -5px;
   width: 15px;
   height: 15px;
   cursor: nwse-resize;
-  background: #666;
+  background: transparent;
 }
 </style>
