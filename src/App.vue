@@ -45,7 +45,7 @@ const closeWindow = (id) => {
 
 <style>
 .desktop {
-  position: relative;
+  position: fixed;
   width: 100vw;
   height: 100vh;
   background: #222;
