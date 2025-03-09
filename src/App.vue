@@ -14,7 +14,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, markRaw } from "vue";
 import Window from "@/components/Window.vue";
 import Shop from "@/views/Shop.vue";
