@@ -1,12 +1,8 @@
 <template>
-  <div
-      class="window"
-      :style="{ width: width + 'px', height: height + 'px', top: y + 'px', left: x + 'px' }"
-      @mousedown="bringToFront"
-  >
+  <div class="window" :style="{ width: width + 'px', height: height + 'px', top: y + 'px', left: x + 'px' }" @mousedown="bringToFront">
     <div class="title-bar" @mousedown="startDrag">
-      <span>{{ title }}</span>
-      <button @click="$emit('close', id)">✖</button>
+      <span class="title">{{ title }}</span>
+      <button class="close-btn" @click="$emit('close', id)">✖</button>
     </div>
     <div class="content">
       <slot></slot> <!-- This is where the loaded page will appear -->
@@ -19,8 +15,8 @@
 import { ref } from "vue";
 
 const props = defineProps({
-  id: Number, // Unique ID for each window
-  title: String, // Window title
+  id: { type: Number, required: true },
+  title: String,
 });
 
 const emit = defineEmits(["close"]);
@@ -78,24 +74,51 @@ const bringToFront = (event) => {
 <style scoped>
 .window {
   position: absolute;
-  background: black;
+  background: #222;
   border: 2px solid #333;
-  border-radius: 5px;
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
   overflow: hidden;
+  font-family: sans-serif;
+  color: white;
 }
+
 .title-bar {
   background: #444;
   color: white;
   padding: 5px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
   cursor: grab;
   user-select: none;
+  height: 25px;
 }
+
+.title {
+  margin-left: 5px;
+}
+
+.close-btn {
+  background: #ff4444;
+  border: none;
+  color: white;
+  font-weight: bold;
+  padding: 2px 8px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.close-btn:hover {
+  background: #cc0000;
+}
+
 .content {
   padding: 10px;
+  border-top: 1px solid #444;
 }
+
 .resize-handle {
   position: absolute;
   bottom: 0;
@@ -103,6 +126,6 @@ const bringToFront = (event) => {
   width: 15px;
   height: 15px;
   cursor: nwse-resize;
-  background: #ccc;
+  background: #666;
 }
 </style>
