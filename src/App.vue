@@ -45,17 +45,20 @@ const closeWindow = (id) => {
 
 <style>
 .desktop {
-  position: absolute;
+  position: relative;
   width: 100vw;
   height: 100vh;
   background: #222;
+  overflow: hidden;
 }
 nav {
-  position: fixed;
-  top: 10px;
-  left: 10px;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
   background: rgba(255, 255, 255, 0.2);
   padding: 10px;
   border-radius: 5px;
+  z-index: 1000;
 }
 </style>
