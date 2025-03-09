@@ -6,6 +6,9 @@
     <button class="taskbar-item" @click="openWindow('Shop')">
       Shop
     </button>
+    <button class="taskbar-item" @click="openWindow('Gordath')">
+      Gordath
+    </button>
   </nav>
 </template>
 

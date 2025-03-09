@@ -26,6 +26,7 @@ const x = ref(100);
 const y = ref(100);
 const width = ref(400);
 const height = ref(300);
+let maxZIndex = ref(10);
 
 const startDrag = (event) => {
   const startX = event.clientX - x.value;
@@ -67,8 +68,13 @@ const startResize = (event) => {
 };
 
 const bringToFront = (event) => {
-  event.target.closest(".window").style.zIndex = 1000; // Bring to front
+  const windowElement = event.target.closest(".windows"); // Bring to front
+  if (!windowElement) return;
+
+  maxZIndex.value += 1;
+  windowElement.style.zIndex = maxZIndex.value;
 };
+
 </script>
 
 <style scoped>
@@ -115,6 +121,10 @@ const bringToFront = (event) => {
 }
 
 .content {
+  display: flex;
+  justify-content: center; /* all flex box content is up for deletion because it sucks */
+  align-items: center;
+  flex-direction: column;
   padding: 10px;
   border-top: 1px solid #444;
 }
