@@ -24,7 +24,7 @@ const emit = defineEmits(["close"]);
 // Window position and size
 const width = ref(400);
 const height = ref(300);
-const maxZIndex = inject("maxZIndex");
+const maxZIndex = inject<Ref<number>>("maxZIndex");
 const zIndex = ref(1);
 
 const getRandomY = (): number => {
@@ -77,14 +77,14 @@ const startDrag = (event: MouseEvent): void => {
   document.addEventListener("mouseup", stopMove);
 };
 
-const startResize = (event): void => {
+const startResize = (event: MouseEvent): void => {
   event.stopPropagation();
   const startX = event.clientX;
   const startY = event.clientY;
   const startWidth = width.value;
   const startHeight = height.value;
 
-  const resize = (e): void => {
+  const resize = (e: MouseEvent): void => {
     width.value = Math.max(200, startWidth + (e.clientX - startX));
     height.value = Math.max(150, startHeight + (e.clientY - startY));
   };
