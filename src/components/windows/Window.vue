@@ -51,7 +51,7 @@ const startDrag = (event: MouseEvent): void => {
   const startX = event.clientX - x.value;
   const startY = event.clientY - y.value;
 
-  const move = (e: MouseEvent) => {
+  const move = (e: MouseEvent): void => {
     const viewportWidth: number = window.innerWidth;
     const viewportHeight: number = window.innerHeight;
 
@@ -77,14 +77,14 @@ const startDrag = (event: MouseEvent): void => {
   document.addEventListener("mouseup", stopMove);
 };
 
-const startResize = (event) => {
+const startResize = (event): void => {
   event.stopPropagation();
   const startX = event.clientX;
   const startY = event.clientY;
   const startWidth = width.value;
   const startHeight = height.value;
 
-  const resize = (e) => {
+  const resize = (e): void => {
     width.value = Math.max(200, startWidth + (e.clientX - startX));
     height.value = Math.max(150, startHeight + (e.clientY - startY));
   };
