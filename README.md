@@ -1,4 +1,5 @@
 # Moshivar Landing Page
-GO [HERE](https://moshivar.github.io/)
 
+Welcome to our main page
 
+Click here <a href="https://moshivar.github.io/" target="_blank" rel="noopener noreferrer">to visit</a>
