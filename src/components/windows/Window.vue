@@ -12,12 +12,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from "vue";
+import { ref, inject, type Ref } from "vue";
 
-const props = defineProps({
-  id: { type: Number, required: true },
-  title: String,
-});
+const { id, title } = defineProps<{ id: number; title: string }>();
 
 const emit = defineEmits(["close"]);
 
