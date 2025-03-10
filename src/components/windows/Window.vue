@@ -11,7 +11,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, inject } from "vue";
 
 const props = defineProps({
@@ -29,13 +29,25 @@ const height = ref(300);
 const maxZIndex = inject("maxZIndex");
 const zIndex = ref(1);
 
-const startDrag = (event) => {
+const startDrag = (event: MouseEvent): void => {
   const startX = event.clientX - x.value;
   const startY = event.clientY - y.value;
 
-  const move = (e) => {
-    x.value = e.clientX - startX;
-    y.value = e.clientY - startY;
+  const move = (e: MouseEvent) => {
+    const viewportWidth: number = window.innerWidth;
+    const viewportHeight: number = window.innerHeight;
+
+    const navbarElement = document.querySelector(".bottom-nav") as HTMLElement;
+    const navbarHeight: number = navbarElement ? navbarElement.offsetHeight : 0;
+
+    let newX: number = e.clientX - startX;
+    let newY: number = e.clientY - startY;
+
+    newX = Math.max(0, Math.min(viewportWidth - width.value, newX));
+    newY = Math.max(0, Math.min(viewportHeight - navbarHeight - height.value, newY));
+
+    x.value = newX;
+    y.value = newY;
   };
 
   const stopMove = () => {

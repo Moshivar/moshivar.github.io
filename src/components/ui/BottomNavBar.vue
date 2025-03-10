@@ -30,6 +30,7 @@ defineProps({
   padding: 5px;
   border-top: 2px solid #111;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
 }
 
 .taskbar-item {
