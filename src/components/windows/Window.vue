@@ -22,12 +22,30 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 
 // Window position and size
-const x = ref(100);
-const y = ref(100);
 const width = ref(400);
 const height = ref(300);
 const maxZIndex = inject("maxZIndex");
 const zIndex = ref(1);
+
+const getRandomY = (): number => {
+  const viewportHeight: number = window.innerHeight;
+  const minY: number = viewportHeight * 0.3; // 40% of the screen
+  const maxY: number = viewportHeight * 0.7; // 60% of the screen
+
+  return Math.random() * (maxY - minY) + minY;
+};
+
+const y = ref<number>(getRandomY());
+
+const getRandomX = (): number => {
+  const viewportWidth: number = window.innerWidth;
+  const minX: number = viewportWidth * 0.3; // 40% of the screen
+  const maxX: number = viewportWidth * 0.7; // 60% of the screen
+
+  return Math.random() * (maxX - minX) + minX;
+};
+
+const x = ref<number>(getRandomX());
 
 const startDrag = (event: MouseEvent): void => {
   const startX = event.clientX - x.value;
