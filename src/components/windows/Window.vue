@@ -21,7 +21,12 @@ const emit = defineEmits(["close"]);
 // Window position and size
 const width = ref(400);
 const height = ref(300);
+
 const maxZIndex = inject<Ref<number>>("maxZIndex");
+if (!maxZIndex) {
+  throw new Error("maxZIndex is not provided in WindowManager.vue");
+}
+
 const zIndex = ref(1);
 
 const getRandomY = (): number => {
