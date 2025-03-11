@@ -1,21 +1,43 @@
 <template>
   <nav class="bottom-nav">
-    <button class="taskbar-item" @click="openWindow('Home')">
-      Home
-    </button>
-    <button class="taskbar-item" @click="openWindow('Shop')">
-      Shop
-    </button>
-    <button class="taskbar-item" @click="openWindow('Gordath')">
-      Gordath
-    </button>
+    <button class="menu-button" @click="toggleMenu">Menu</button>
+    <DropMenu v-if="isMenuOpen" @closeMenu="isMenuOpen = false" :openWindow="openWindow" />
   </nav>
 </template>
 
-<script setup>
-defineProps({
-  openWindow: Function,
-});
+<script setup lang="ts">
+import { ref } from "vue";
+import DropMenu from "./DropMenu.vue";
+
+defineProps<{ openWindow: (title: string) => void }>();
+
+// ✅ Track menu visibility
+const isMenuOpen = ref(false);
+
+// ✅ Toggle menu visibility
+const toggleMenu = (event: MouseEvent) => {
+  event.stopPropagation(); // ✅ Prevents immediate closing
+
+  isMenuOpen.value = !isMenuOpen.value;
+
+  console.log("Menu Open:", isMenuOpen.value);
+
+  if (isMenuOpen.value) {
+    document.addEventListener("click", closeMenu);
+  } else {
+    document.removeEventListener("click", closeMenu);
+  }
+};
+
+// ✅ Close menu when clicking anywhere
+const closeMenu = () => {
+  isMenuOpen.value = false;
+  console.log("Menu Closed");
+
+  document.removeEventListener("click", closeMenu); // ✅ Ensure event listener is removed
+};
+
+
 </script>
 
 <style scoped>
@@ -33,7 +55,7 @@ defineProps({
   z-index: 1000;
 }
 
-.taskbar-item {
+.menu-button {
   background: #444;
   color: white;
   border: 1px solid #666;
@@ -45,7 +67,7 @@ defineProps({
   box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.taskbar-item:hover {
+.menu-button:hover {
   background: #555;
 }
 </style>
