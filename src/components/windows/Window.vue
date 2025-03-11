@@ -30,7 +30,7 @@ if (!maxZIndex) {
   throw new Error("maxZIndex is not provided in WindowManager.vue");
 }
 
-const zIndex = ref(1);
+const zIndex = ref(++maxZIndex.value);
 
 const getRandomY = (): number => {
   const viewportHeight: number = window.innerHeight;

@@ -6,11 +6,11 @@
 
 <template>
   <div class="drop-menu">
-    <button class="taskbar-item" @click="openWindow('Home')">
-      Home
+    <button class="taskbar-item" @click="openWindow('About')">
+      About
     </button>
-    <button class="taskbar-item" @click="openWindow('Shop')">
-      Shop
+    <button class="taskbar-item" @click="openWindow('Projects')">
+      Projects
     </button>
     <button class="taskbar-item" @click="openWindow('Gordath')">
       Gordath
