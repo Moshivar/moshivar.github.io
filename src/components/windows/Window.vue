@@ -81,6 +81,8 @@ const startDrag = (event: MouseEvent): void => {
 
 const startResize = (event: MouseEvent): void => {
   event.stopPropagation();
+  document.body.style.userSelect = "none";
+
   const startX = event.clientX;
   const startY = event.clientY;
   const startWidth = width.value;
@@ -103,6 +105,7 @@ const startResize = (event: MouseEvent): void => {
   const stopResize = () => {
     document.removeEventListener("mousemove", resize);
     document.removeEventListener("mouseup", stopResize);
+    document.body.style.userSelect = "";
   };
 
   document.addEventListener("mousemove", resize);
