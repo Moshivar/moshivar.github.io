@@ -22,6 +22,9 @@ const emit = defineEmits(["close"]);
 const width = ref(400);
 const height = ref(300);
 
+const navbarElement = document.querySelector(".bottom-nav") as HTMLElement;
+const navbarHeight: number = navbarElement ? navbarElement.offsetHeight : 0;
+
 const maxZIndex = inject<Ref<number>>("maxZIndex");
 if (!maxZIndex) {
   throw new Error("maxZIndex is not provided in WindowManager.vue");
@@ -57,9 +60,6 @@ const startDrag = (event: MouseEvent): void => {
     const viewportWidth: number = window.innerWidth;
     const viewportHeight: number = window.innerHeight;
 
-    const navbarElement = document.querySelector(".bottom-nav") as HTMLElement;
-    const navbarHeight: number = navbarElement ? navbarElement.offsetHeight : 0;
-
     let newX: number = e.clientX - startX;
     let newY: number = e.clientY - startY;
 
@@ -87,8 +87,17 @@ const startResize = (event: MouseEvent): void => {
   const startHeight = height.value;
 
   const resize = (e: MouseEvent): void => {
-    width.value = Math.max(200, startWidth + (e.clientX - startX));
-    height.value = Math.max(150, startHeight + (e.clientY - startY));
+    const viewportWidth: number = window.innerWidth;
+    const viewportHeight: number = window.innerHeight;
+
+    let newWidth: number = startWidth + (e.clientX - startX);
+    let newHeight: number = startHeight + (e.clientY - startY);
+
+    newWidth = Math.min(viewportWidth - x.value, Math.max(200, newWidth));
+    newHeight = Math.min(viewportHeight - navbarHeight - y.value, Math.max(200, newHeight));
+
+    width.value = newWidth;
+    height.value = newHeight;
   };
 
   const stopResize = () => {
