@@ -18,10 +18,11 @@ import Window from "@/components/windows/Window.vue";
 import Projects from "@/views/Projects.vue";
 import About from "@/views/About.vue";
 import Gordath from "@/views/Gordath.vue";
-import BottomNavBar from "@/components/ui/bottom_bar/BottomNavBar.vue";
+import BottomNavBar from "@/components/ui/BottomNavBar.vue";
 
+//establish which window is brought to top
 const maxZIndex = ref(10);
-provide("maxZIndex", maxZIndex); // ✅ Make `maxZIndex` available to all windows
+provide("maxZIndex", maxZIndex);
 
 // Define the structure for a windows
 interface WindowData {

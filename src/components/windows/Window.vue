@@ -18,51 +18,62 @@ const { id, title } = defineProps<{ id: number; title: string }>();
 
 const emit = defineEmits(["close"]);
 
-// Window position and size
+//initial window width and height
 const width = ref(400);
 const height = ref(300);
 
+//defines the height of the navbar
 const navbarElement = document.querySelector(".bottom-nav") as HTMLElement;
 const navbarHeight: number = navbarElement ? navbarElement.offsetHeight : 0;
 
+//take the max z index from the window manager
 const maxZIndex = inject<Ref<number>>("maxZIndex");
 if (!maxZIndex) {
   throw new Error("maxZIndex is not provided in WindowManager.vue");
 }
 
+//when the z index change it increases by one
 const zIndex = ref(++maxZIndex.value);
 
-const getRandomY = (): number => {
-  const viewportHeight: number = window.innerHeight;
-  const minY: number = viewportHeight * 0.3; // 40% of the screen
-  const maxY: number = viewportHeight * 0.7; // 60% of the screen
+  const getRandomY = (): number => {
+    const viewportHeight: number = window.innerHeight;
+    const minY: number = viewportHeight * 0.3; // 40% of the screen
+    const maxY: number = viewportHeight * 0.7; // 60% of the screen
 
-  return Math.random() * (maxY - minY) + minY;
-};
+    return Math.random() * (maxY - minY) + minY;
+  };
 
+//initial y is random
 const y = ref<number>(getRandomY());
 
-const getRandomX = (): number => {
-  const viewportWidth: number = window.innerWidth;
-  const minX: number = viewportWidth * 0.3; // 40% of the screen
-  const maxX: number = viewportWidth * 0.7; // 60% of the screen
+  const getRandomX = (): number => {
+    const viewportWidth: number = window.innerWidth;
+    const minX: number = viewportWidth * 0.3; // 40% of the screen
+    const maxX: number = viewportWidth * 0.7; // 60% of the screen
 
-  return Math.random() * (maxX - minX) + minX;
-};
+    return Math.random() * (maxX - minX) + minX;
+  };
 
+//initial x is random
 const x = ref<number>(getRandomX());
 
+//function that manages window drag
 const startDrag = (event: MouseEvent): void => {
+  //defines the start x and y as the mouse position minus the current x value
   const startX = event.clientX - x.value;
   const startY = event.clientY - y.value;
 
+  //starts the move of the drag
   const move = (e: MouseEvent): void => {
+    //creates references to the height and width of the total window
     const viewportWidth: number = window.innerWidth;
     const viewportHeight: number = window.innerHeight;
 
+    //the new x and y is equal to the mouse position x - the starting position
     let newX: number = e.clientX - startX;
     let newY: number = e.clientY - startY;
 
+    //the new position is equal to the max value between 0 and the minimum between viewport - the width of the window and the new x
     newX = Math.max(0, Math.min(viewportWidth - width.value, newX));
     newY = Math.max(0, Math.min(viewportHeight - navbarHeight - height.value, newY));
 
@@ -70,6 +81,7 @@ const startDrag = (event: MouseEvent): void => {
     y.value = newY;
   };
 
+  //removes an event listener
   const stopMove = () => {
     document.removeEventListener("mousemove", move);
     document.removeEventListener("mouseup", stopMove);
