@@ -13,7 +13,7 @@
   inset: 0; /* ✅ Sets top, bottom, left, right to 0 */
   width: 100vw;
   height: 100vh;
-  background: #222;
+  background: #333;
   display: flex; /* ✅ Allows easy child alignment */
   align-items: center;
   justify-content: center;

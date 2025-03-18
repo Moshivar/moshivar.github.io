@@ -46,28 +46,33 @@ const closeMenu = () => {
   bottom: 0;
   left: 0;
   width: 100%;
-  background: #333;
+  height: 40px; /* Set navbar height */
+  background: #6d7677;
   display: flex;
   align-items: center;
-  padding: 5px;
+  padding: 0;
   border-top: 2px solid #111;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
   z-index: 1000;
 }
 
 .menu-button {
-  background: #444;
-  color: white;
-  border: 1px solid #666;
-  padding: 5px 15px;
-  margin-right: 5px;
+  height: 100%;
+  background: inherit;
+  border: none;
+  border-right: 2px solid #111;
+  color: #000000;
+  padding: 0 20px;
+  font-size: 16px;
   cursor: pointer;
-  font-size: 14px;
-  border-radius: 3px;
-  box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease-in-out;
 }
 
 .menu-button:hover {
-  background: #555;
+  background: rgba(255, 255, 255, 0.1);
 }
+
 </style>
