@@ -1,5 +1,4 @@
 <template>
-  <div class="desktop">
     <BottomNavBar :openWindow="openWindow" />
 
     <Window
@@ -11,16 +10,15 @@
     >
       <component :is="win.component" />
     </Window>
-  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, provide, markRaw, defineComponent } from "vue";
 import Window from "@/components/windows/Window.vue";
-import Shop from "@/views/Shop.vue";
-import Home from "@/views/Home.vue";
+import Projects from "@/views/Projects.vue";
+import About from "@/views/About.vue";
 import Gordath from "@/views/Gordath.vue";
-import BottomNavBar from "@/components/ui/BottomNavBar.vue";
+import BottomNavBar from "@/components/ui/bottom_bar/BottomNavBar.vue";
 
 const maxZIndex = ref(10);
 provide("maxZIndex", maxZIndex); // ✅ Make `maxZIndex` available to all windows
@@ -41,8 +39,8 @@ const openWindow = (title: string) => {  // Explicitly define 'title' as a strin
   }
 
   let component: ReturnType<typeof defineComponent> | undefined;
-  if (title === "Shop") component = markRaw(Shop);
-  if (title === "Home") component = markRaw(Home);
+  if (title === "Projects") component = markRaw(Projects);
+  if (title === "About") component = markRaw(About);
   if (title === "Gordath") component = markRaw(Gordath);
 
   openWindows.value.push({
@@ -58,10 +56,5 @@ const closeWindow = (id: number) => {
 </script>
 
 <style>
-.desktop {
-  position: fixed;
-  width: 100vw;
-  height: 100vh;
-  background: #222;
-}
+
 </style>
