@@ -21,6 +21,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
+import type { CSSProperties } from 'vue';
 
 export default defineComponent({
   name: 'Window',
@@ -62,7 +63,7 @@ export default defineComponent({
     const currentHeight = ref(props.height);
     const isMaximized = ref(false);
 
-    const windowStyle = computed(() => ({
+    const windowStyle = computed((): CSSProperties => ({
       top: isMaximized.value ? '0' : `${y.value}px`,
       left: isMaximized.value ? '0' : `${x.value}px`,
       width: isMaximized.value ? '100%' : `${currentWidth.value}px`,
