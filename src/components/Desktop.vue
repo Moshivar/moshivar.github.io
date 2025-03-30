@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import Taskbar from './ui/taskBar/taskBar.vue';
+import Taskbar from './taskBar/taskBar.vue';
 import WindowManager from './windows/WindowManager.vue';
 import About from '../pages/About.vue';
 import Projects from '../pages/Projects.vue';

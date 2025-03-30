@@ -43,10 +43,10 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useWindowStore } from '../../../components/windows/windowStore';
-import About from '../../../pages/About.vue';
-import Projects from '../../../pages/Projects.vue';
-import Gordath from '../../../pages/Gordath.vue';
+import { useWindowStore } from '../../components/windows/windowStore';
+import About from '../../pages/About.vue';
+import Projects from '../../pages/Projects.vue';
+import Gordath from '../../pages/Gordath.vue';
 
 export default defineComponent({
   name: 'TaskbarMenu',
