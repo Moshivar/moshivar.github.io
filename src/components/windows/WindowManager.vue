@@ -49,6 +49,7 @@ export default defineComponent({
       windowStore.minimizeWindow(id);
     };
 
+
     const handleMaximize = (id: number) => {
       console.log('Maximizing window:', id);
       windowStore.maximizeWindow(id);
