@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Projects from "../views/Projects.vue"; // ✅ Change "@/" to "../"
-import About from "../views/About.vue";
-import Gordath from "../views/Gordath.vue";
+import Projects from "../pages/Projects.vue"; // ✅ Change "@/" to "../"
+import About from "../pages/About.vue";
+import Gordath from "../pages/Gordath.vue";
 
 const routes = [
     {path: "/shop", component: Projects, name: "Shop" },
