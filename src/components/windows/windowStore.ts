@@ -4,7 +4,7 @@ import { defineStore } from 'pinia';
 interface WindowData {
   id: number;
   title: string;
-  component: any; // This will hold the Vue component (e.g., a page) to be rendered in the window.
+  component: any;
   x: number;
   y: number;
   width: number;
@@ -22,12 +22,23 @@ export const useWindowStore = defineStore('window', {
   }),
   actions: {
     addWindow(title: string, component: any, x = 100, y = 100, width = 400, height = 300) {
+      // Compute a diagonal offset based on the number of windows already open.
+      const offset = this.windows.length * 30;
+      let newX = x + offset;
+      let newY = y + offset;
+      // Ensure the new window fits on-screen; if not, reset to defaults.
+      if (newX + width > window.innerWidth) {
+        newX = x;
+      }
+      if (newY + height > window.innerHeight) {
+        newY = y;
+      }
       const windowData: WindowData = {
         id: this.nextWindowId++,
         title,
         component,
-        x,
-        y,
+        x: newX,
+        y: newY,
         width,
         height,
         isMinimized: false,
@@ -55,7 +66,6 @@ export const useWindowStore = defineStore('window', {
     focusWindow(id: number) {
       const win = this.windows.find(w => w.id === id);
       if (win) {
-        // Update the zIndex so the window comes to the front.
         win.zIndex = this.nextZIndex++;
       }
     },

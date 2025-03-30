@@ -22,7 +22,7 @@
     （ﾟ､｡７
       |、~ヽ
           じし_,)\ノ 
-        Welcome to Wizard Cat OS Booting...
+        Welcome to Moshirvar.os Booting...
       `;
   
 
@@ -41,7 +41,7 @@
         'Checking file system integrity...',
         'Mounting drives...',
         'Loading drivers...',
-        'Wizard Cat OS - Version 1.0.0',
+        'Moshirvar OS - Version 1.0.0',
         'Boot sequence complete.'
       ];
   

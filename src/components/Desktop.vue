@@ -83,6 +83,7 @@ export default defineComponent({
   padding: 10px;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box; /* Include padding in the overall dimensions */
 }
 
 /* Container for shortcut icons */
@@ -91,15 +92,21 @@ export default defineComponent({
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
+  align-items: flex-start;
 }
 
 /* Style for each shortcut icon */
 .shortcut {
   width: 80px;
+  height: 80px;
   text-align: center;
   cursor: pointer;
   color: var(--snow);
-  user-select: none; /* Prevent text selection on click */
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .shortcut .icon {
