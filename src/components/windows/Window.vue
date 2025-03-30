@@ -1,200 +1,231 @@
+<!-- src/components/windows/Window.vue -->
 <template>
-  <div class="window" :style="{ width: width + 'px', height: height + 'px', top: y + 'px', left: x + 'px', zIndex: zIndex }" @mousedown="bringToFront">
+  <div class="window" :style="windowStyle" @mousedown="bringToFront">
+    <!-- Title bar with window controls -->
     <div class="title-bar" @mousedown="startDrag">
       <span class="title">{{ title }}</span>
-      <button class="close-btn" @click="$emit('close', id)">✖</button>
+      <div class="window-controls">
+        <button @click.stop="minimize">_</button>
+        <button @click.stop="toggleMaximize">{{ isMaximized ? '🗗' : '🗖' }}</button>
+        <button @click.stop="close">X</button>
+      </div>
     </div>
+    <!-- Window content area -->
     <div class="content">
-      <slot></slot> <!-- This is where the loaded page will appear -->
+      <slot />
     </div>
-    <div class="resize-handle" @mousedown="startResize"></div>
+    <!-- Resize handle at bottom-right -->
+    <div class="resize-handle" @mousedown.stop="startResize"></div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, inject, type Ref } from "vue";
+<script lang="ts">
+import { defineComponent, ref, computed } from 'vue';
 
-const { id, title } = defineProps<{ id: number; title: string }>();
+export default defineComponent({
+  name: 'Window',
+  props: {
+    id: {
+      type: Number,
+      required: true,
+    },
+    title: {
+      type: String,
+      default: 'Window',
+    },
+    initialX: {
+      type: Number,
+      default: 100,
+    },
+    initialY: {
+      type: Number,
+      default: 100,
+    },
+    width: {
+      type: Number,
+      default: 400,
+    },
+    height: {
+      type: Number,
+      default: 300,
+    },
+  },
+  emits: ['close', 'minimize', 'maximize', 'focus'],
+  setup(props, { emit }) {
+    // Define a constant for the taskbar height
+    const TASKBAR_HEIGHT = 40;
 
-const emit = defineEmits(["close"]);
+    // Reactive state for position and size
+    const x = ref(props.initialX);
+    const y = ref(props.initialY);
+    const currentWidth = ref(props.width);
+    const currentHeight = ref(props.height);
+    const isMaximized = ref(false);
 
-//initial window width and height
-const width = ref(400);
-const height = ref(300);
+    const windowStyle = computed(() => ({
+      top: isMaximized.value ? '0' : `${y.value}px`,
+      left: isMaximized.value ? '0' : `${x.value}px`,
+      width: isMaximized.value ? '100%' : `${currentWidth.value}px`,
+      height: isMaximized.value ? `calc(100% - ${TASKBAR_HEIGHT}px)` : `${currentHeight.value}px`,
+      position: 'absolute',
+      zIndex: 1,
+    }));
 
-//defines the height of the navbar
-const navbarElement = document.querySelector(".bottom-nav") as HTMLElement;
-const navbarHeight: number = navbarElement ? navbarElement.offsetHeight : 0;
+    // Drag state for moving the window
+    const dragging = ref(false);
+    const dragOffset = ref({ x: 0, y: 0 });
 
-//take the max z index from the window manager
-const maxZIndex = inject<Ref<number>>("maxZIndex");
-if (!maxZIndex) {
-  throw new Error("maxZIndex is not provided in WindowManager.vue");
-}
+    const startDrag = (event: MouseEvent) => {
+      if (isMaximized.value) return; // Prevent dragging when maximized
+      dragging.value = true;
+      dragOffset.value = {
+        x: event.clientX - x.value,
+        y: event.clientY - y.value,
+      };
+      bringToFront();
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('mouseup', stopDrag);
+    };
 
-//when the z index change it increases by one
-const zIndex = ref(++maxZIndex.value);
+    const onDrag = (event: MouseEvent) => {
+      if (dragging.value) {
+        const newX = event.clientX - dragOffset.value.x;
+        const newY = event.clientY - dragOffset.value.y;
+        // Clamp the position so the window stays within the viewport and above the taskbar
+        x.value = Math.max(0, Math.min(newX, window.innerWidth - currentWidth.value));
+        y.value = Math.max(0, Math.min(newY, window.innerHeight - currentHeight.value - TASKBAR_HEIGHT));
+      }
+    };
 
-  const getRandomY = (): number => {
-    const viewportHeight: number = window.innerHeight;
-    const minY: number = viewportHeight * 0.3; // 40% of the screen
-    const maxY: number = viewportHeight * 0.7; // 60% of the screen
+    const stopDrag = () => {
+      dragging.value = false;
+      document.removeEventListener('mousemove', onDrag);
+      document.removeEventListener('mouseup', stopDrag);
+    };
 
-    return Math.random() * (maxY - minY) + minY;
-  };
+    // Window controls
+    const minimize = () => {
+      emit('minimize', props.id);
+    };
 
-//initial y is random
-const y = ref<number>(getRandomY());
+    const toggleMaximize = () => {
+      isMaximized.value = !isMaximized.value;
+      emit('maximize', { id: props.id, maximized: isMaximized.value });
+    };
 
-  const getRandomX = (): number => {
-    const viewportWidth: number = window.innerWidth;
-    const minX: number = viewportWidth * 0.3; // 40% of the screen
-    const maxX: number = viewportWidth * 0.7; // 60% of the screen
+    const close = () => {
+      emit('close', props.id);
+    };
 
-    return Math.random() * (maxX - minX) + minX;
-  };
+    const bringToFront = () => {
+      emit('focus', props.id);
+    };
 
-//initial x is random
-const x = ref<number>(getRandomX());
+    // Resize logic
+    const resizing = ref(false);
+    const resizeStart = ref({ mouseX: 0, mouseY: 0, width: 0, height: 0 });
 
-//function that manages window drag
-const startDrag = (event: MouseEvent): void => {
-  //defines the start x and y as the mouse position minus the current x value
-  const startX = event.clientX - x.value;
-  const startY = event.clientY - y.value;
+    const startResize = (event: MouseEvent) => {
+      event.stopPropagation();
+      resizing.value = true;
+      resizeStart.value = {
+        mouseX: event.clientX,
+        mouseY: event.clientY,
+        width: currentWidth.value,
+        height: currentHeight.value,
+      };
+      document.addEventListener('mousemove', onResize);
+      document.addEventListener('mouseup', stopResize);
+    };
 
-  //starts the move of the drag
-  const move = (e: MouseEvent): void => {
-    //creates references to the height and width of the total window
-    const viewportWidth: number = window.innerWidth;
-    const viewportHeight: number = window.innerHeight;
+    const onResize = (event: MouseEvent) => {
+      if (!resizing.value) return;
+      const dx = event.clientX - resizeStart.value.mouseX;
+      const dy = event.clientY - resizeStart.value.mouseY;
+      // Set minimum dimensions
+      const minWidth = 200;
+      const minHeight = 100;
+      let newWidth = resizeStart.value.width + dx;
+      let newHeight = resizeStart.value.height + dy;
+      newWidth = Math.max(minWidth, newWidth);
+      newHeight = Math.max(minHeight, newHeight);
+      // Ensure the window doesn't extend off-screen or cover the taskbar
+      newWidth = Math.min(newWidth, window.innerWidth - x.value);
+      newHeight = Math.min(newHeight, window.innerHeight - y.value - TASKBAR_HEIGHT);
+      currentWidth.value = newWidth;
+      currentHeight.value = newHeight;
+    };
 
-    //the new x and y is equal to the mouse position x - the starting position
-    let newX: number = e.clientX - startX;
-    let newY: number = e.clientY - startY;
+    const stopResize = () => {
+      resizing.value = false;
+      document.removeEventListener('mousemove', onResize);
+      document.removeEventListener('mouseup', stopResize);
+    };
 
-    //the new position is equal to the max value between 0 and the minimum between viewport - the width of the window and the new x
-    newX = Math.max(0, Math.min(viewportWidth - width.value, newX));
-    newY = Math.max(0, Math.min(viewportHeight - navbarHeight - height.value, newY));
-
-    x.value = newX;
-    y.value = newY;
-  };
-
-  //removes an event listener
-  const stopMove = () => {
-    document.removeEventListener("mousemove", move);
-    document.removeEventListener("mouseup", stopMove);
-  };
-
-  document.addEventListener("mousemove", move);
-  document.addEventListener("mouseup", stopMove);
-};
-
-const startResize = (event: MouseEvent): void => {
-  event.stopPropagation();
-  document.body.style.userSelect = "none";
-
-  const startX = event.clientX;
-  const startY = event.clientY;
-  const startWidth = width.value;
-  const startHeight = height.value;
-
-  const resize = (e: MouseEvent): void => {
-    const viewportWidth: number = window.innerWidth;
-    const viewportHeight: number = window.innerHeight;
-
-    let newWidth: number = startWidth + (e.clientX - startX);
-    let newHeight: number = startHeight + (e.clientY - startY);
-
-    newWidth = Math.min(viewportWidth - x.value, Math.max(200, newWidth));
-    newHeight = Math.min(viewportHeight - navbarHeight - y.value, Math.max(200, newHeight));
-
-    width.value = newWidth;
-    height.value = newHeight;
-  };
-
-  const stopResize = () => {
-    document.removeEventListener("mousemove", resize);
-    document.removeEventListener("mouseup", stopResize);
-    document.body.style.userSelect = "";
-  };
-
-  document.addEventListener("mousemove", resize);
-  document.addEventListener("mouseup", stopResize);
-};
-
-const bringToFront = () => {
-  maxZIndex.value += 1; // Increase max z-index
-  zIndex.value = maxZIndex.value; // Assign highest z-index to this window
-};
+    return {
+      x,
+      y,
+      windowStyle,
+      isMaximized,
+      startDrag,
+      minimize,
+      toggleMaximize,
+      close,
+      bringToFront,
+      startResize,
+    };
+  },
+});
 
 </script>
 
 <style scoped>
 .window {
-  position: absolute;
-  background: #222;
-  border: 2px solid #575757;
+  background-color: var(--jet);
+  border: 1px solid #575757;
   border-radius: 12px;
-  box-shadow: 3px 3px 5px rgba(100, 100, 100, 0.7);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   overflow: hidden;
-  font-family: sans-serif;
-  color: white;
 }
 
 .title-bar {
-  background: #444;
-  color: white;
-  padding: 5px;
+  background-color: #444;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: bold;
-  cursor: grab;
+  padding: 5px;
+  cursor: move;
   user-select: none;
-  height: 25px;
 }
 
 .title {
+  font-weight: bold;
+  color: var(--snow);
+}
+
+.window-controls button {
+  background: #d61313;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--snow);
   margin-left: 5px;
 }
 
-.close-btn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #d61313;
-  height: 25px;
-  width: 25px;
-  border: 8px white;
-  color: white;
-  font-weight: bold;
-  padding: 2px 8px;
-  cursor: pointer;
-  border-radius: 6px;
-}
-
-.close-btn:hover {
-  background: #cc0000;
-}
-
 .content {
-  display: flex;
-  justify-content: center; /* all flex box content is up for deletion because it sucks */
-  align-items: center;
-  flex-direction: column;
   padding: 10px;
-  border-top: 1px solid #444;
+  height: calc(100% - 30px); /* Adjust based on title bar height */
+  overflow: auto;
 }
 
+/* Resize handle styling */
 .resize-handle {
   position: absolute;
-  bottom: -5px; /* ✅ Extends outside the window */
-  right: -5px;
-  width: 15px;
-  height: 15px;
-  cursor: nwse-resize;
+  width: 16px;
+  height: 16px;
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
   background: transparent;
 }
 </style>

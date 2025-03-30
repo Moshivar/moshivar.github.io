@@ -1,61 +1,83 @@
+<!-- src/components/windows/WindowManager.vue -->
 <template>
-    <BottomNavBar :openWindow="openWindow" />
-
+  <div class="window-manager">
     <Window
-        v-for="win in openWindows"
-        :key="win.id"
-        :id="win.id"
-        :title="win.title"
-        @close="closeWindow"
+      v-for="win in windows"
+      :key="win.id"
+      :id="win.id"
+      :title="win.title"
+      :initialX="win.x"
+      :initialY="win.y"
+      :width="win.width"
+      :height="win.height"
+      :style="{ zIndex: win.zIndex }"
+      v-show="!win.isMinimized"
+      @close="handleClose"
+      @minimize="handleMinimize"
+      @maximize="handleMaximize"
+      @focus="handleFocus"
     >
+      <!-- Dynamically render the component assigned to this window -->
       <component :is="win.component" />
     </Window>
+  </div>
 </template>
 
-<script setup lang="ts">
-import { ref, provide, markRaw, defineComponent } from "vue";
-import Window from "@/components/windows/Window.vue";
-import Projects from "@/views/Projects.vue";
-import About from "@/views/About.vue";
-import Gordath from "@/views/Gordath.vue";
-import BottomNavBar from "@/components/ui/BottomNavBar.vue";
+<script lang="ts">
+import { defineComponent } from 'vue';
+import { useWindowStore } from './windowStore';
+import { storeToRefs } from 'pinia';
+import Window from './Window.vue';
 
-//establish which window is brought to top
-const maxZIndex = ref(10);
-provide("maxZIndex", maxZIndex);
+export default defineComponent({
+  name: 'WindowManager',
+  components: {
+    Window,
+  },
+  setup() {
+    const windowStore = useWindowStore();
+    // Use storeToRefs to ensure reactivity
+    const { windows } = storeToRefs(windowStore);
 
-// Define the structure for a windows
-interface WindowData {
-  id: number;
-  title: string;
-  component: ReturnType<typeof defineComponent>; // Type for Vue components
-}
+    const handleClose = (id: number) => {
+      console.log('Closing window:', id);
+      windowStore.closeWindow(id);
+    };
 
-// State to manage open windows
-const openWindows = ref<WindowData[]>([]);
+    const handleMinimize = (id: number) => {
+      console.log('Minimizing window:', id);
+      windowStore.minimizeWindow(id);
+    };
 
-const openWindow = (title: string) => {  // Explicitly define 'title' as a string
-  if (openWindows.value.some((win) => win.title === title)) {
-    return; // Prevent opening duplicate windows
-  }
 
-  let component: ReturnType<typeof defineComponent> | undefined;
-  if (title === "Projects") component = markRaw(Projects);
-  if (title === "About") component = markRaw(About);
-  if (title === "Gordath") component = markRaw(Gordath);
+    const handleMaximize = (id: number) => {
+      console.log('Maximizing window:', id);
+      windowStore.maximizeWindow(id);
+    };
 
-  openWindows.value.push({
-    id: Date.now(), // Unique ID
-    title,
-    component: component as ReturnType<typeof defineComponent>, // Ensure correct typing
-  });
-};
+    const handleFocus = (id: number) => {
+      console.log('Focusing window:', id);
+      windowStore.focusWindow(id);
+    };
 
-const closeWindow = (id: number) => {
-  openWindows.value = openWindows.value.filter((win) => win.id !== id);
-};
+    return { windows, handleClose, handleMinimize, handleMaximize, handleFocus };
+  },
+});
 </script>
 
-<style>
+<style scoped>
+.window-manager {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Prevent the container from intercepting clicks when no window is present */
+  pointer-events: none;
+}
 
+/* Allow pointer events on individual windows */
+.window-manager > * {
+  pointer-events: auto;
+}
 </style>
