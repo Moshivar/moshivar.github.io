@@ -46,7 +46,7 @@
 import { defineComponent, ref, onMounted, onUnmounted, computed } from 'vue';
 import { useWindowStore } from '../../windows/windowStore';
 import { storeToRefs } from 'pinia';
-import TaskbarMenu from '@/components/ui/taskBar/taskbarMenu.vue';
+import TaskbarMenu from './taskbarMenu.vue';
 
 export default defineComponent({
   name: 'Taskbar',
