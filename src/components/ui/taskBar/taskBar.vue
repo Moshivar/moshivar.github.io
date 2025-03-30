@@ -44,7 +44,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, onUnmounted, computed } from 'vue';
-import { useWindowStore } from '@/components/windows/windowStore';
+import { useWindowStore } from '@/components/windows/windowStore.ts';
 import { storeToRefs } from 'pinia';
 import TaskbarMenu from '@/components/ui/taskBar/taskbarMenu.vue';
 
