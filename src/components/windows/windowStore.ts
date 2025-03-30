@@ -1,5 +1,6 @@
 // src/components/windows/windowStore.ts
 import { defineStore } from 'pinia';
+import { markRaw } from 'vue';
 
 interface WindowData {
   id: number;
@@ -22,17 +23,16 @@ export const useWindowStore = defineStore('window', {
   }),
   actions: {
     addWindow(title: string, component: any, x = 100, y = 100, width = 400, height = 300) {
-      // Check if a window with this title (app) already exists.
+      // Prevent duplicate windows
       const existingWindow = this.windows.find(w => w.title === title);
       if (existingWindow) {
-        // If it exists, restore it if minimized and bring it to focus.
         if (existingWindow.isMinimized) {
           existingWindow.isMinimized = false;
         }
         this.focusWindow(existingWindow.id);
         return existingWindow;
       }
-      // Otherwise, create a new window with a diagonal offset.
+      // Calculate diagonal offset
       const offset = this.windows.length * 30;
       let newX = x + offset;
       let newY = y + offset;
@@ -45,7 +45,8 @@ export const useWindowStore = defineStore('window', {
       const windowData: WindowData = {
         id: this.nextWindowId++,
         title,
-        component,
+        // Mark the component as raw to prevent reactivity
+        component: markRaw(component),
         x: newX,
         y: newY,
         width,
