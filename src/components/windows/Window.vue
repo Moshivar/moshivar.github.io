@@ -5,9 +5,9 @@
     <div class="title-bar" @mousedown="startDrag">
       <span class="title">{{ title }}</span>
       <div class="window-controls">
-        <button @click.stop="minimize">_</button>
-        <button @click.stop="toggleMaximize">{{ isMaximized ? '🗗' : '🗖' }}</button>
-        <button @click.stop="close">X</button>
+        <button id="minimize-button" @click.stop="minimize"></button>
+        <button id="maximize-button" @click.stop="toggleMaximize"></button>
+        <button id="close-button" @click.stop="close"></button>
       </div>
     </div>
     <!-- Window content area -->
@@ -70,6 +70,8 @@ export default defineComponent({
       height: isMaximized.value ? `calc(100% - ${TASKBAR_HEIGHT}px)` : `${currentHeight.value}px`,
       position: 'absolute',
       zIndex: 1,
+      borderTop: `2px solid ${barColor.value}`, // Random border color here
+
     }));
 
     // Drag state for moving the window
@@ -163,6 +165,15 @@ export default defineComponent({
       document.removeEventListener('mouseup', stopResize);
     };
 
+    const borderColors = ['#F2394B', '#F67450', '#F0C640', '#F7F026', '#67CF3A', '#1772E7'];
+
+    function getBarColor() {
+      return borderColors[Math.floor(Math.random() * borderColors.length)];
+    }
+
+    const barColor = ref(getBarColor());
+
+
     return {
       x,
       y,
@@ -183,34 +194,63 @@ export default defineComponent({
 <style scoped>
 .window {
   background-color: var(--jet);
-  border: 1px solid #575757;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
   overflow: hidden;
+  color: var(--snow);
 }
 
 .title-bar {
-  background-color: #444;
+  background-color: var(--dark-gray);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 5px;
+  height: 40px;
+  padding: 0;
   cursor: move;
   user-select: none;
+  overflow: hidden;
 }
 
+/* Style the title so it takes up available space */
 .title {
+  flex-grow: 1;
   font-weight: bold;
   color: var(--snow);
+  padding-left: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* Set a fixed width for the window controls container.
+   For three 40px buttons with even spacing, 160px works well (40px * 3 + 10px * 4 = 160px) */
+.window-controls {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 160px;
+}
+
+/* Each button is a 40px square with no extra internal spacing */
 .window-controls button {
-  background: #d61313;
+  width: 20px;
+  height: 20px;
   border: none;
-  border-radius: 6px;
   cursor: pointer;
-  color: var(--snow);
-  margin-left: 5px;
+  flex-shrink: 0;
+}
+
+/* Specific background colors for each button */
+#minimize-button {
+  background-color: var(--yellow);
+}
+
+#maximize-button {
+  background-color: var(--yellow-orange);
+}
+
+#close-button {
+  background-color: var(--red);
 }
 
 .content {

@@ -3,7 +3,7 @@
   <div class="taskbar">
     <div class="taskbar-left">
       <!-- Start button toggles the TaskbarMenu -->
-      <button class="start-button" @click="toggleTaskbarMenu">☰</button>
+      <button class="start-button" @click="toggleTaskbarMenu">Menu</button>
       
       <!-- Window tabs area: either normal or collapsed -->
       <template v-if="!isCollapsed">
@@ -124,6 +124,7 @@ export default defineComponent({
   height: 40px;
   background-color: var(--dark-gray);
   color: var(--snow);
+  border-top: 2px solid var(--blue);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -140,8 +141,9 @@ export default defineComponent({
 
 /* Start button styling */
 .start-button {
-  background-color: white;
-  color: var(--night);
+  color: var(--snow);
+  background: transparent;
+  font-weight: bold;
   border: none;
   padding: 5px 10px;
   cursor: pointer;
@@ -158,7 +160,6 @@ export default defineComponent({
   padding: 5px 10px;
   background-color: var(--jet);
   cursor: pointer;
-  border: 1px solid var(--tiffany-blue);
   border-radius: 3px;
 }
 
@@ -170,7 +171,7 @@ export default defineComponent({
 .windows-dropdown-button {
   padding: 5px 10px;
   background-color: var(--jet);
-  border: 1px solid var(--tiffany-blue);
+  border: 1px solid var(--orange);
   border-radius: 3px;
   cursor: pointer;
 }
@@ -197,7 +198,6 @@ export default defineComponent({
 
 /* Clock styling */
 .clock {
-  font-family: 'Courier New', Courier, monospace;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

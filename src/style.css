@@ -1,14 +1,31 @@
 /* src/style.css */
 :root {
-  --night: #131515ff;
-  --jet: #333;
-  --persian-green: #dda963;
-  --tiffany-blue: #7de2d1ff;
+  --jet: #333333;
   --snow: #fffafbff;
-  /* Additional complementary colors for a balanced dark theme */
-  --dark-gray: #272525;
-  --charcoal: #333333;
-  --silver: #b0b0b0;
+  --dark-gray: #242424;
+  --light-gray: #424242;
+  --red: #F2394B;
+  --orange: #F67450;
+  --yellow-orange: #F0C640;
+  --yellow: #F7F026;
+  --green: #67CF3A;
+  --blue: #1772E7;
+
+}
+
+@font-face {
+  font-family: 'Frutiger';
+  font-style: normal;
+  font-weight: normal;
+  src: url('assets/fonts/Frutiger.woff') format('woff');
+}
+
+
+@font-face {
+  font-family: 'Frutiger Bold';
+  font-style: normal;
+  font-weight: normal;
+  src: url('assets/fonts/Frutiger_bold.woff') format('woff');
 }
 
 /* src/style.css */
@@ -18,4 +35,5 @@ html, body, #app {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  font-family: 'Frutiger', sans-serif;
 }
