@@ -22,7 +22,8 @@
     （ﾟ､｡７
       |、~ヽ
           じし_,)\ノ 
-        Welcome to Moshirvar.os Booting...
+        Welcome to Moshirvar.os 
+        Booting...
       `;
   
 

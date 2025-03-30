@@ -22,11 +22,20 @@ export const useWindowStore = defineStore('window', {
   }),
   actions: {
     addWindow(title: string, component: any, x = 100, y = 100, width = 400, height = 300) {
-      // Compute a diagonal offset based on the number of windows already open.
+      // Check if a window with this title (app) already exists.
+      const existingWindow = this.windows.find(w => w.title === title);
+      if (existingWindow) {
+        // If it exists, restore it if minimized and bring it to focus.
+        if (existingWindow.isMinimized) {
+          existingWindow.isMinimized = false;
+        }
+        this.focusWindow(existingWindow.id);
+        return existingWindow;
+      }
+      // Otherwise, create a new window with a diagonal offset.
       const offset = this.windows.length * 30;
       let newX = x + offset;
       let newY = y + offset;
-      // Ensure the new window fits on-screen; if not, reset to defaults.
       if (newX + width > window.innerWidth) {
         newX = x;
       }
@@ -55,6 +64,12 @@ export const useWindowStore = defineStore('window', {
       const win = this.windows.find(w => w.id === id);
       if (win) {
         win.isMinimized = true;
+      }
+    },
+    restoreWindow(id: number) {
+      const win = this.windows.find(w => w.id === id);
+      if (win) {
+        win.isMinimized = false;
       }
     },
     maximizeWindow(id: number) {
