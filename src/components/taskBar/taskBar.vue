@@ -122,7 +122,7 @@ export default defineComponent({
   left: 0;
   width: 100%;
   height: 40px;
-  background-color: var(--jet);
+  background-color: var(--dark-gray);
   color: var(--snow);
   display: flex;
   justify-content: space-between;
@@ -140,7 +140,7 @@ export default defineComponent({
 
 /* Start button styling */
 .start-button {
-  background-color: var(--persian-green);
+  background-color: white;
   color: var(--night);
   border: none;
   padding: 5px 10px;
@@ -179,7 +179,7 @@ export default defineComponent({
   position: absolute;
   bottom: 45px; /* Adjust to appear above the taskbar */
   left: 70px; /* Adjust based on layout */
-  background-color: var(--jet);
+  background-color: var(--dark-gray);
   border: 1px solid var(--tiffany-blue);
   border-radius: 3px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);

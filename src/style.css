@@ -1,12 +1,12 @@
 /* src/style.css */
 :root {
   --night: #131515ff;
-  --jet: #2b2c28ff;
-  --persian-green: #339989ff;
+  --jet: #333;
+  --persian-green: #dda963;
   --tiffany-blue: #7de2d1ff;
   --snow: #fffafbff;
   /* Additional complementary colors for a balanced dark theme */
-  --dark-gray: #1f1f1f;
+  --dark-gray: #272525;
   --charcoal: #333333;
   --silver: #b0b0b0;
 }

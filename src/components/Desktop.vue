@@ -89,6 +89,7 @@ export default defineComponent({
 /* Container for shortcut icons */
 .shortcuts {
   flex: 1;
+  flex-direction: column;
   display: flex;
   flex-wrap: wrap;
   gap: 20px;

@@ -74,7 +74,7 @@
   
   <style scoped>
   .boot-splash {
-    background-color: var(--night);
+    background-color: var(--jet);
     color: var(--snow);
     height: 100vh;
     width: 100vw;
