@@ -5,9 +5,9 @@
     <div class="title-bar" @mousedown="startDrag">
       <span class="title">{{ title }}</span>
       <div class="window-controls">
-        <button id="minimize-button" @click.stop="minimize"></button>
-        <button id="maximize-button" @click.stop="toggleMaximize"></button>
-        <button id="close-button" @click.stop="close"></button>
+        <button id="minimize-button" @click.stop="minimize">_</button>
+        <button id="maximize-button" @click.stop="toggleMaximize">{{ isMaximized ? '🗗' : '🗖' }}</button>
+        <button id="close-button" @click.stop="close">X</button>
       </div>
     </div>
     <!-- Window content area -->
@@ -238,6 +238,7 @@ export default defineComponent({
   border: none;
   cursor: pointer;
   flex-shrink: 0;
+  border-radius: 3px; /* Rounded corners for buttons */
 }
 
 /* Specific background colors for each button */
