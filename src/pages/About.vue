@@ -18,7 +18,6 @@ export default defineComponent({
 
 <style scoped>
 .about-page {
-  background-color: var(--night);
   color: var(--snow);
   padding: 20px;
   font-family: Arial, sans-serif;

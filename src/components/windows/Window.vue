@@ -181,13 +181,14 @@ export default defineComponent({
 <style scoped>
 .window {
   background-color: var(--jet);
-  border: 1px solid var(--tiffany-blue);
+  border: 1px solid #575757;
+  border-radius: 12px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   overflow: hidden;
 }
 
 .title-bar {
-  background-color: var(--persian-green);
+  background-color: #444;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -198,13 +199,15 @@ export default defineComponent({
 
 .title {
   font-weight: bold;
+  color: var(--snow);
 }
 
 .window-controls button {
-  background: transparent;
+  background: #d61313;
   border: none;
+  border-radius: 6px;
   cursor: pointer;
-  color: var(--night);
+  color: var(--snow);
   margin-left: 5px;
 }
 
@@ -222,6 +225,6 @@ export default defineComponent({
   bottom: 0;
   right: 0;
   cursor: se-resize;
-  background-color: var(--tiffany-blue);
+  background: transparent;
 }
 </style>
