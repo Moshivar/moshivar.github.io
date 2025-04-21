@@ -2,37 +2,38 @@
 <template>
   <div class="taskbar-menu" ref="menuRef">
     <div class="menu-items">
-      <!-- Applications Section (Top) -->
-      <div class="menu-item applications" @click="toggleAppsMenu">
-        Applications
-        <div v-if="showAppsMenu" class="dropdown apps-dropdown">
+      <!-- Applications Section -->
+      <div class="menu-item applications" @click="toggleApps">
+        Applications ▾
+        <div v-if="showApps" class="dropdown apps-dropdown" @click.stop>
           <input
-            type="text"
             v-model="searchQuery"
             placeholder="Search..."
             class="search-bar"
-            @mousedown.stop
-            @mouseup.stop
-            @click.stop
           />
           <div
+            v-for="label in filteredApps"
+            :key="label"
             class="dropdown-item"
-            v-for="app in filteredApps"
-            :key="app"
-            @click="handleLaunchApp(app)"
+            @click="launchApp(label)"
           >
-            {{ app }}
+            {{ label }}
+          </div>
+          <div v-if="!filteredApps.length" class="no-results">
+            No applications found.
           </div>
         </div>
       </div>
-      <!-- Settings Section (Middle) -->
+
+      <!-- Settings Section -->
       <div class="menu-item settings" @click="openSettings">
         ⚙️ Settings
       </div>
-      <!-- Power Section (Bottom) -->
-      <div class="menu-item power" @click="togglePowerMenu">
-        ⏻ Power
-        <div v-if="showPowerMenu" class="dropdown power-dropdown">
+
+      <!-- Power Section -->
+      <div class="menu-item power" @click="togglePower">
+        ⏻ Power ▾
+        <div v-if="showPower" class="dropdown power-dropdown" @click.stop>
           <div class="dropdown-item" @click="restart">Restart</div>
           <div class="dropdown-item" @click="shutdown">Shutdown</div>
         </div>
@@ -41,200 +42,221 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useWindowStore } from '../../components/windows/windowStore';
-import About from '../../pages/About.vue';
-import Projects from '../../pages/Projects.vue';
-import Gordath from '../../pages/Gordath.vue';
+<script setup lang="ts">
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useWindowStore } from '../windows/windowStore';
+import type { Component } from 'vue';
 
-export default defineComponent({
-  name: 'TaskbarMenu',
-  emits: ['close'],
-  setup(_, { emit }) {
-    const menuRef = ref<HTMLElement | null>(null);
+const emit = defineEmits(['close']);
 
-    // Dropdown toggles
-    const showPowerMenu = ref(false);
-    const showAppsMenu = ref(false);
-    const searchQuery = ref('');
+// Discover all page modules & metadata
+interface AppModule {
+  default: Component;
+  meta: { label: string; icon: string; version?: string; x?: number; y?: number; width?: number; height?: number };
+}
+const modules = import.meta.glob('../../pages/*.vue', { eager: true }) as Record<string, AppModule>;
 
-    // List of available applications (dummy) sorted alphabetically
-    const apps = ref(['About', 'Gordath', 'Projects']);
-    apps.value.sort();
+// Build sorted list of labels
+const allApps = Object.values(modules)
+  .map(m => m.meta.label)
+  .sort((a, b) => a.localeCompare(b));
 
-    const filteredApps = computed(() => {
-      if (!searchQuery.value) return apps.value;
-      return apps.value.filter(app =>
-        app.toLowerCase().includes(searchQuery.value.toLowerCase())
-      );
-    });
+const searchQuery = ref('');
+const showApps = ref(false);
+const showPower = ref(false);
+const menuRef = ref<HTMLElement | null>(null);
 
-    // Map app names to their components
-    const appComponents: Record<string, any> = {
-      About,
-      Projects,
-      Gordath,
-    };
+const filteredApps = computed(() =>
+  !searchQuery.value
+    ? allApps
+    : allApps.filter(label =>
+        label.toLowerCase().includes(searchQuery.value.toLowerCase())
+      )
+);
 
-    const windowStore = useWindowStore();
+const windowStore = useWindowStore();
 
-    const togglePowerMenu = () => {
-      showPowerMenu.value = !showPowerMenu.value;
-      if (showPowerMenu.value) showAppsMenu.value = false;
-    };
+// Toggle handlers
+function toggleApps() {
+  showApps.value = !showApps.value;
+  if (showApps.value) showPower.value = false;
+}
+function togglePower() {
+  showPower.value = !showPower.value;
+  if (showPower.value) showApps.value = false;
+}
 
-    const toggleAppsMenu = () => {
-      showAppsMenu.value = !showAppsMenu.value;
-      if (showAppsMenu.value) showPowerMenu.value = false;
-    };
-
-    const openSettings = () => {
-      console.log('Settings clicked');
-    };
-
-    const handleLaunchApp = (app: string) => {
-      // Launch the application using the store's addWindow method.
-      const componentToLaunch = appComponents[app];
-      if (componentToLaunch) {
-        windowStore.addWindow(app, componentToLaunch);
-      } else {
-        console.warn(`No component found for app: ${app}`);
+// Launch an application window
+function launchApp(label: string) {
+  const module = Object.values(modules).find(m => m.meta.label === label);
+  if (module) {
+    windowStore.addWindow(
+      label,
+      module.default,
+      {
+        x: module.meta.x,
+        y: module.meta.y,
+        width: module.meta.width,
+        height: module.meta.height,
       }
-      toggleAppsMenu(); // close the dropdown after launching
-    };
+    );
+  }
+  showApps.value = false;
+  emit('close');
+}
 
-    // Shutdown effect: create a full-screen black overlay.
-    const shutdown = () => {
-      console.log('Shutdown initiated');
-      const overlay = document.createElement('div');
-      overlay.id = 'shutdown-overlay';
-      overlay.style.position = 'fixed';
-      overlay.style.top = '0';
-      overlay.style.left = '0';
-      overlay.style.width = '100%';
-      overlay.style.height = '100%';
-      overlay.style.backgroundColor = '#000';
-      overlay.style.zIndex = '9999';
-      document.body.appendChild(overlay);
-    };
+// Settings stub
+function openSettings() {
+  console.log('Open settings...');
+  emit('close');
+}
 
-    // Restart: simulate reboot by shutdown effect then reload the page.
-    const restart = () => {
-      console.log('Restart initiated');
-      const overlay = document.createElement('div');
-      overlay.id = 'shutdown-overlay';
-      overlay.style.position = 'fixed';
-      overlay.style.top = '0';
-      overlay.style.left = '0';
-      overlay.style.width = '100%';
-      overlay.style.height = '100%';
-      overlay.style.backgroundColor = '#000';
-      overlay.style.zIndex = '9999';
-      document.body.appendChild(overlay);
-      setTimeout(() => {
-        location.reload();
-      }, 3000);
-    };
+// Power actions
+function createOverlay() {
+  const o = document.createElement('div');
+  o.id = 'shutdown-overlay';
+  Object.assign(o.style, {
+    position: 'fixed',
+    top: '0', left: '0', width: '100%', height: '100%',
+    backgroundColor: '#000', zIndex: '9999',
+  });
+  document.body.appendChild(o);
+}
+function shutdown() {
+  createOverlay();
+}
+function restart() {
+  createOverlay();
+  setTimeout(() => location.reload(), 2500);
+}
 
-    // Close the entire menu if click occurs outside of it.
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.value && !menuRef.value.contains(event.target as Node)) {
-        emit('close');
-      }
-    };
-
-    onMounted(() => {
-      document.addEventListener('click', handleClickOutside, true);
-    });
-    onBeforeUnmount(() => {
-      document.removeEventListener('click', handleClickOutside, true);
-    });
-
-    return {
-      menuRef,
-      showPowerMenu,
-      showAppsMenu,
-      searchQuery,
-      filteredApps,
-      togglePowerMenu,
-      toggleAppsMenu,
-      openSettings,
-      shutdown,
-      restart,
-      handleLaunchApp,
-    };
-  },
-});
+// Close menu when clicking outside
+function onClickOutside(e: MouseEvent) {
+  if (menuRef.value && !menuRef.value.contains(e.target as Node)) {
+    emit('close');
+  }
+}
+onMounted(() => document.addEventListener('click', onClickOutside, true));
+onBeforeUnmount(() => document.removeEventListener('click', onClickOutside, true));
 </script>
 
 <style scoped>
 .taskbar-menu {
   position: absolute;
-  bottom: 40px; /* Positioned above the taskbar */
+  bottom: 45px; /* matches taskbar height */
   left: 10px;
-  background-color: var(--jet);
+  background: var(--jet);
   color: var(--snow);
   border: 1px solid var(--tiffany-blue);
-  border-radius: 3px;
-  padding: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-  z-index: 1100;
+  border-radius: 4px;
+  padding: 8px;
+  overflow: visible;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6); /* restore overall menu shadow */
 }
 
-/* Menu items are stacked vertically and left-aligned */
+/* Rainbow stripe (unchanged) */
+.taskbar-menu::before {
+  content: "";
+  position: absolute;
+  top: -4px; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(
+    90deg,
+    #ff0000, #ff7f00, #ffff00,
+    #00ff00, #0000ff, #4b0082,
+    #8f00ff, #ff0000
+  );
+  background-size: 400% 100%;
+  animation: rainbow-wave 15s linear infinite;
+}
+
+/* Top‑level menu items separated */
 .menu-items {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
+  gap: 0;
 }
 
 .menu-item {
-  cursor: pointer;
   position: relative;
-  padding: 5px 10px;
-  width: 100%;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s, border-color 0.2s;
+  border-bottom: 1px solid var(--dark-gray);
+}
+.menu-item:last-child {
+  border-bottom: none;
+}
+.menu-item:hover {
+  background: #333;
 }
 
-/* Dropdowns open to the right side of the parent menu item */
+/* Dropdown now opens upward */
 .dropdown {
   position: absolute;
-  top: 0;
-  left: 100%;
-  margin-left: 5px;
-  background-color: var(--jet);
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 6px;
+  transform: translateX(150px);
+  background: var(--jet);
   border: 1px solid var(--tiffany-blue);
-  border-radius: 3px;
-  padding: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  padding: 6px 0;
   z-index: 1200;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* shadow around dropdown */
 }
 
-.dropdown .dropdown-item {
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
-.dropdown .dropdown-item:hover {
-  background-color: var(--persian-green);
-}
-
-/* Applications dropdown styling */
+/* Apps dropdown width */
 .apps-dropdown {
   width: 200px;
-  max-height: 300px;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 
+/* Search bar */
 .search-bar {
-  width: 100%;
-  padding: 5px;
-  margin-bottom: 5px;
+  display: block;
+  width: 80%;
+  margin-bottom: 8px;
+  margin-left: 10px;
+  padding: 6px 10px;
+  background: var(--dark-gray);
   border: 1px solid var(--tiffany-blue);
-  border-radius: 3px;
-  background-color: var(--jet);
+  border-radius: 4px;
   color: var(--snow);
+  font-size: 0.9rem;
+}
+
+/* No results message */
+.no-results {
+  padding: 6px 12px;
+  color: #888;
+}
+
+/* Distinct dropdown items */
+.dropdown-item {
+  padding: 6px 12px;
+  color: var(--snow);
+  transition: background 0.2s;
+  border-bottom: 1px solid var(--dark-gray);
+}
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+.dropdown-item:hover {
+  background: #333;
+}
+
+/* Power dropdown narrower */
+.power-dropdown {
+  width: 140px;
+}
+
+/* Rainbow animation keyframes */
+@keyframes rainbow-wave {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 0%; }
+  100% { background-position: 0% 0%; }
 }
 </style>
+
