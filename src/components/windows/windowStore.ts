@@ -22,30 +22,49 @@ export const useWindowStore = defineStore('window', {
     nextWindowId: 1,
   }),
   actions: {
-    addWindow(title: string, component: any, x = 100, y = 100, width = 400, height = 300) {
-      // Prevent duplicate windows
-      const existingWindow = this.windows.find(w => w.title === title);
-      if (existingWindow) {
-        if (existingWindow.isMinimized) {
-          existingWindow.isMinimized = false;
-        }
-        this.focusWindow(existingWindow.id);
-        return existingWindow;
+    /**
+     * Opens a new window or focuses an existing one.
+     * Options can override default position and size.
+     */
+    addWindow(
+      title: string,
+      component: any,
+      options: Partial<Pick<WindowData, 'x' | 'y' | 'width' | 'height'>> = {}
+    ) {
+      // Prevent duplicate windows by title
+      const existing = this.windows.find(w => w.title === title);
+      if (existing) {
+        if (existing.isMinimized) existing.isMinimized = false;
+        this.focusWindow(existing.id);
+        return existing;
       }
-      // Calculate diagonal offset
+
+      // Compute defaults based on viewport size
+      const viewportW = window.innerWidth;
+      const viewportH = window.innerHeight;
+      const defaultWidth = Math.floor(viewportW * 0.6);
+      const defaultHeight = Math.floor(viewportH * 0.6);
+      // Shift default position towards top-left to leave more space for cascading windows
+      const defaultX = 100;
+      const defaultY = 50;
+
+      // Apply options or defaults
+      let x = options.x ?? defaultX;
+      let y = options.y ?? defaultY;
+      let width = options.width ?? defaultWidth;
+      let height = options.height ?? defaultHeight;
+
+      // Diagonal offset for each new window
       const offset = this.windows.length * 30;
       let newX = x + offset;
       let newY = y + offset;
-      if (newX + width > window.innerWidth) {
-        newX = x;
-      }
-      if (newY + height > window.innerHeight) {
-        newY = y;
-      }
+      // Clamp within viewport
+      if (newX + width > viewportW) newX = x;
+      if (newY + height > viewportH) newY = y;
+
       const windowData: WindowData = {
         id: this.nextWindowId++,
         title,
-        // Mark the component as raw to prevent reactivity
         component: markRaw(component),
         x: newX,
         y: newY,
@@ -58,32 +77,29 @@ export const useWindowStore = defineStore('window', {
       this.windows.push(windowData);
       return windowData;
     },
+
     closeWindow(id: number) {
       this.windows = this.windows.filter(w => w.id !== id);
     },
+
     minimizeWindow(id: number) {
       const win = this.windows.find(w => w.id === id);
-      if (win) {
-        win.isMinimized = true;
-      }
+      if (win) win.isMinimized = true;
     },
+
     restoreWindow(id: number) {
       const win = this.windows.find(w => w.id === id);
-      if (win) {
-        win.isMinimized = false;
-      }
+      if (win) win.isMinimized = false;
     },
+
     maximizeWindow(id: number) {
       const win = this.windows.find(w => w.id === id);
-      if (win) {
-        win.isMaximized = !win.isMaximized;
-      }
+      if (win) win.isMaximized = !win.isMaximized;
     },
+
     focusWindow(id: number) {
       const win = this.windows.find(w => w.id === id);
-      if (win) {
-        win.zIndex = this.nextZIndex++;
-      }
+      if (win) win.zIndex = this.nextZIndex++;
     },
   },
 });

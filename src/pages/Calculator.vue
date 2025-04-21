@@ -160,10 +160,12 @@
   <script lang="ts">
   // Metadata for the desktop shortcut
   export const meta = {
-    label: 'Calculator',
-    icon: '📟',
-    version: '1.2.1'
-  };
+  label: 'Calculator',
+  icon: '📟',
+  version: '1.2.1',
+  width: 400,
+  height: 600,
+};
   </script>
   
   <style scoped>
