@@ -21,7 +21,7 @@ export default defineComponent({
   },
   setup() {
     // Reactive flag to determine if boot animation is complete
-    const bootComplete = ref(false);
+    const bootComplete = ref(true); //set true for testing, set false to enable
 
     // Handler to update the flag when the boot sequence finishes
     const handleBootFinished = () => {

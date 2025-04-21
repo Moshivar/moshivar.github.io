@@ -44,8 +44,9 @@ export const useWindowStore = defineStore('window', {
       const viewportH = window.innerHeight;
       const defaultWidth = Math.floor(viewportW * 0.6);
       const defaultHeight = Math.floor(viewportH * 0.6);
-      const defaultX = Math.floor((viewportW - defaultWidth) / 2);
-      const defaultY = Math.floor((viewportH - defaultHeight) / 2);
+      // Shift default position towards top-left to leave more space for cascading windows
+      const defaultX = 100;
+      const defaultY = 50;
 
       // Apply options or defaults
       let x = options.x ?? defaultX;
