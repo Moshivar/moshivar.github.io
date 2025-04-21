@@ -14,7 +14,6 @@ import { defineComponent } from 'vue';
 import ShortcutManager from './ShortcutManager.vue';
 import WindowManager from './windows/WindowManager.vue';
 import Taskbar from './taskBar/taskBar.vue';
-import { useWindowStore } from './windows/windowStore';
 
 export default defineComponent({
   name: 'Desktop',
@@ -22,12 +21,7 @@ export default defineComponent({
     ShortcutManager,
     WindowManager,
     Taskbar,
-  },
-  setup() {
-    // Ensure window store is initialized (if needed)
-    const windowStore = useWindowStore();
-    return {};
-  },
+  }
 });
 </script>
 
