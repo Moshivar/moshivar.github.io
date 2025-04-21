@@ -1,5 +1,6 @@
 <template>
   <div class="desktop">
+    <Background />
     <!-- Container for desktop shortcuts -->
     <ShortcutManager />
     <!-- Render WindowManager to display open windows -->
@@ -14,10 +15,12 @@ import { defineComponent } from 'vue';
 import ShortcutManager from './ShortcutManager.vue';
 import WindowManager from './windows/WindowManager.vue';
 import Taskbar from './taskBar/taskBar.vue';
+import Background from './Background.vue';
 
 export default defineComponent({
   name: 'Desktop',
   components: {
+    Background,
     ShortcutManager,
     WindowManager,
     Taskbar,
@@ -27,7 +30,6 @@ export default defineComponent({
 
 <style scoped>
 .desktop {
-  background-color: var(--jet);
   height: 100vh;
   width: 100vw;
   position: relative;
