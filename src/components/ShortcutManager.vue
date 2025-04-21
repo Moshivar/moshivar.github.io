@@ -1,3 +1,4 @@
+<!-- src/components/ShortcutManager.vue -->
 <template>
     <div class="shortcut-container">
       <div
@@ -36,17 +37,26 @@
       label: string;
       icon: string;
       version?: string;
+      // Optional window sizing/position overrides
+      x?: number;
+      y?: number;
+      width?: number;
+      height?: number;
     };
   }
   
-  // Interface for desktop shortcut info
+  // Interface for desktop shortcut info including optional layout overrides
   interface AppInfo {
     label: string;
     icon: string;
     component: Component;
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
   }
   
-  // Globally import all page components and metadata from src/pages
+  // Glob‑import all page components and metadata from src/pages
   const modules = import.meta.glob('../pages/*.vue', { eager: true }) as Record<string, AppModule>;
   
   // Build reactive array of apps
@@ -56,7 +66,11 @@
       .map(m => ({
         label: m.meta.label,
         icon: m.meta.icon,
-        component: m.default
+        component: m.default,
+        x: m.meta.x,
+        y: m.meta.y,
+        width: m.meta.width,
+        height: m.meta.height,
       }))
   );
   
@@ -64,13 +78,23 @@
   
   // Determine if the icon string is an image path (vs. an emoji/text)
   function isImageIcon(icon: string): boolean {
-    // Simple heuristic: contains a slash or a file extension
-    return icon.startsWith('/') || icon.startsWith('http') || /\.(png|jpg|jpeg|svg|gif)$/.test(icon);
+    return icon.startsWith('/') ||
+           icon.startsWith('http') ||
+           /\.(png|jpg|jpeg|svg|gif)$/.test(icon);
   }
   
-  // Double-click a shortcut to open its window
+  // Single-click a shortcut to open its window with optional overrides
   function openApp(app: AppInfo) {
-    windowStore.addWindow(app.label, app.component);
+    windowStore.addWindow(
+      app.label,
+      app.component,
+      {
+        x: app.x,
+        y: app.y,
+        width: app.width,
+        height: app.height,
+      }
+    );
   }
   </script>
   
