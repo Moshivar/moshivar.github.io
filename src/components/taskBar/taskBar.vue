@@ -2,16 +2,20 @@
 <template>
   <div class="taskbar">
     <div class="taskbar-left">
-      <!-- Start button toggles the TaskbarMenu -->
-      <button class="start-button" @click="toggleTaskbarMenu">Menu</button>
-      
-      <!-- Window tabs area: either normal or collapsed -->
+      <!-- Start button -->
+      <button class="start-button" @click="toggleTaskbarMenu">
+        <!-- You could swap this for a “Windows” logo SVG if you like -->
+        <span class="start-icon">≡</span>
+      </button>
+
+      <!-- Window tabs area -->
       <template v-if="!isCollapsed">
         <div class="open-windows">
           <div
             v-for="win in windows"
             :key="win.id"
             class="window-tab"
+            :class="{ active: win.zIndex === maxZ }"
             @click="activateWindow(win)"
           >
             {{ win.title }}
@@ -20,7 +24,7 @@
       </template>
       <template v-else>
         <button class="windows-dropdown-button" @click="toggleWindowsDropdown">
-          Windows
+          Windows ▾
         </button>
         <div v-if="showWindowsDropdown" class="windows-dropdown">
           <div
@@ -34,10 +38,12 @@
         </div>
       </template>
     </div>
+
     <div class="taskbar-right">
       <div class="clock">{{ currentTime }}</div>
     </div>
-    <!-- TaskbarMenu remains as before -->
+
+    <!-- TaskbarMenu -->
     <TaskbarMenu v-if="showTaskbarMenu" @close="toggleTaskbarMenu" />
   </div>
 </template>
@@ -55,6 +61,11 @@ export default defineComponent({
     const windowStore = useWindowStore();
     const { windows } = storeToRefs(windowStore);
 
+    // For detecting which window is on top
+    const maxZ = computed(() =>
+      windows.value.reduce((max, w) => (w.zIndex > max ? w.zIndex : max), 0)
+    );
+
     // Clock logic
     const currentTime = ref(new Date().toLocaleTimeString());
     let interval: number;
@@ -63,7 +74,7 @@ export default defineComponent({
     };
     onMounted(() => {
       interval = window.setInterval(updateTime, 1000);
-      updateWidth(); // set initial value
+      updateTime();
       window.addEventListener('resize', updateWidth);
     });
     onUnmounted(() => {
@@ -71,45 +82,34 @@ export default defineComponent({
       window.removeEventListener('resize', updateWidth);
     });
 
-    // Reactive property for window width
+    // Collapse logic
     const windowWidth = ref(window.innerWidth);
-    const updateWidth = () => {
-      windowWidth.value = window.innerWidth;
-    };
-
-    // Collapse threshold (adjust as needed; here, if width is below 400px)
-    const COLLAPSE_THRESHOLD = 400;
+    const updateWidth = () => (windowWidth.value = window.innerWidth);
+    const COLLAPSE_THRESHOLD = 500;
     const isCollapsed = computed(() => windowWidth.value < COLLAPSE_THRESHOLD);
 
-    // TaskbarMenu toggle
+    // Dropdown & menu toggles
     const showTaskbarMenu = ref(false);
-    const toggleTaskbarMenu = () => {
-      showTaskbarMenu.value = !showTaskbarMenu.value;
-    };
-
-    // Windows dropdown state (for collapsed view)
+    const toggleTaskbarMenu = () => (showTaskbarMenu.value = !showTaskbarMenu.value);
     const showWindowsDropdown = ref(false);
-    const toggleWindowsDropdown = () => {
-      showWindowsDropdown.value = !showWindowsDropdown.value;
-    };
+    const toggleWindowsDropdown = () => (showWindowsDropdown.value = !showWindowsDropdown.value);
 
-    // Activate window tab: restore if minimized and bring to front
+    // Activate (focus/restore) windows
     const activateWindow = (win: any) => {
-      if (win.isMinimized) {
-        windowStore.restoreWindow(win.id);
-      }
+      if (win.isMinimized) windowStore.restoreWindow(win.id);
       windowStore.focusWindow(win.id);
     };
 
     return {
       windows,
+      maxZ,
       currentTime,
+      isCollapsed,
       showTaskbarMenu,
       toggleTaskbarMenu,
-      activateWindow,
-      isCollapsed,
       showWindowsDropdown,
       toggleWindowsDropdown,
+      activateWindow,
     };
   },
 });
@@ -120,88 +120,152 @@ export default defineComponent({
   position: fixed;
   bottom: 0;
   left: 0;
-  width: 100%;
-  height: 40px;
-  background-color: var(--dark-gray);
-  color: var(--snow);
-  border-top: 2px solid var(--blue);
+  right: 0;
+  height: 45px;
+  padding: 0 12px;
+  background: var(--dark-gray);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0 10px;
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+  justify-content: space-between;
   z-index: 1000;
+
+  /* remove shadows */
+  box-shadow: none;
+  /* allow the animated top bar to show */
+  overflow: visible;
+}
+
+/* animated “slow wave” top border */
+.taskbar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #0000ff,
+    #4b0082,
+    #8f00ff,
+    #ff0000
+  );
+  background-size: 400% 100%;
+  animation: rainbow-wave 15s linear infinite;
+}
+
+@keyframes rainbow-wave {
+  0% {
+    background-position:   0% 0%;
+  }
+  50% {
+    background-position: 100% 0%;
+  }
+  100% {
+    background-position:   0% 0%;
+  }
 }
 
 .taskbar-left,
 .taskbar-right {
   display: flex;
   align-items: center;
+  height: 100%;
 }
 
-/* Start button styling */
+/* START BUTTON */
 .start-button {
-  color: var(--snow);
-  background: transparent;
-  font-weight: bold;
-  border: none;
-  padding: 5px 10px;
+  width: 30px;
+  height: 30px;
+  background: var(--jet);
+  border: 1px solid #555;
+  border-radius: 4px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  margin-right: 10px;
+  transition: background 0.2s, border-color 0.2s;
+}
+.start-button:hover {
+  background: #555;
+  border-color: #666;
+}
+.start-icon {
+  color: #ddd;
+  font-size: 1.2rem;
+  line-height: 1;
 }
 
-/* Normal open windows tab area */
+/* OPEN WINDOWS TABS */
 .open-windows {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .window-tab {
-  padding: 5px 10px;
-  background-color: var(--jet);
+  padding: 6px 12px;
+  background: #333;
+  color: #ccc;
+  border-radius: 4px;
   cursor: pointer;
-  border-radius: 3px;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
 }
-
 .window-tab:hover {
-  border: 1px solid var(--snow);
+  background: #444;
+  color: #fff;
+}
+.window-tab.active {
+  background: #1e90ff;
+  color: #fff;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Collapsed view dropdown for windows */
+/* COLLAPSED DROPDOWN */
 .windows-dropdown-button {
-  padding: 5px 10px;
-  background-color: var(--jet);
-  border: 1px solid var(--orange);
-  border-radius: 3px;
+  padding: 6px 10px;
+  background: #333;
+  color: #ccc;
+  border: 1px solid #555;
+  border-radius: 4px;
   cursor: pointer;
+  transition: background 0.2s;
+}
+.windows-dropdown-button:hover {
+  background: #444;
+  color: #fff;
 }
 
 .windows-dropdown {
   position: absolute;
-  bottom: 45px; /* Adjust to appear above the taskbar */
-  left: 70px; /* Adjust based on layout */
-  background-color: var(--dark-gray);
-  border: 1px solid var(--tiffany-blue);
-  border-radius: 3px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-  z-index: 1100;
-}
-
-.window-dropdown-item {
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
-.window-dropdown-item:hover {
-  background-color: var(--persian-green);
-}
-
-/* Clock styling */
-.clock {
-  white-space: nowrap;
+  bottom: 50px;
+  left: 60px;
+  background: #2b2b2b;
+  border: 1px solid #444;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
   overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 120px;
-  padding-right: 20px;
+}
+.window-dropdown-item {
+  padding: 8px 12px;
+  color: #ddd;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.window-dropdown-item:hover {
+  background: #444;
+  color: #fff;
+}
+
+/* CLOCK */
+.clock {
+  color: #ccc;
+  font-size: 1rem;
+  padding: 0 12px;
 }
 </style>
