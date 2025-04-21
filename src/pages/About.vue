@@ -14,6 +14,12 @@ import { defineComponent } from 'vue';
 export default defineComponent({
   name: 'About',
 });
+
+export const meta = {
+  label: "About",               // Title
+  icon: "📄", // path to your shortcut icon
+  version: "0.0.1",            // (optional) for any future updater UI
+};
 </script>
 
 <style scoped>

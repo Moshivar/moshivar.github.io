@@ -14,6 +14,12 @@ import { defineComponent } from 'vue';
 export default defineComponent({
   name: 'Gordath',
 });
+
+export const meta = {
+  label: "Gordath",               // Title
+  icon: "./gordath.png", // path to your shortcut icon
+  version: "0.0.1",            // (optional) for any future updater UI
+};
 </script>
 
 <style scoped>
